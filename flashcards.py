@@ -200,14 +200,16 @@ def main():
                     flipped = False
                     valid_action = True
                     correct += 1
-                    idx = random.randint(0, len(flashcards) - 1)
+                    if len(flashcards) != 0:
+                        idx = random.randint(0, len(flashcards) - 1)
                     break
                 case "r":
                     flipped = False
                     valid_action = True
                     cards_to_review.add(front)
                     flashcard_stats[front] += 1
-                    idx = random.randint(0, len(flashcards) - 1)
+                    if len(flashcards) != 0:
+                        idx = random.randint(0, len(flashcards) - 1)
                     break
                 case "f":
                     flipped = not flipped
