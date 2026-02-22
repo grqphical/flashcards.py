@@ -113,9 +113,7 @@ def main():
     try:
         with open(args.filename, "r", newline="") as f:
             csvreader = csv.reader(f)
-            for i, row in enumerate(csvreader):
-                if i == 0:
-                    continue  # skip header row
+            for row in csvreader:
                 back = row[1]
                 if len(row) != 2:
                     back = ",".join(row[1:])
