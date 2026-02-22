@@ -8,13 +8,18 @@ import argparse
 import csv
 import random
 
+GREEN = "\x1b[1;32m"
+YELLOW = "\x1b[1;33m"
+RED = "\x1b[1;31m"
+RESET = "\x1b[0;39m"
 
 def clear_terminal():
+    """Clears the terminal and moves the cursor back to the home position"""
     print("\x1b[2J")
     print("\x1b[H")
 
 
-def draw_ascii_box_with_text(width, height, text):
+def draw_ascii_box_with_text(width: int, height: int, text: str):
     """Draws a box with text around it. Used to draw nicer looking flashcards"""
     # Wrap text to fit within box width
     max_text_width = width - 4
@@ -55,11 +60,38 @@ def draw_ascii_box_with_text(width, height, text):
     # Bottom border
     print("+" + "-" * (width - 2) + "+")
 
-def print_stats(correct, review, total):
-    GREEN = "\x1b[1;32m"
-    YELLOW = "\x1b[1;33m"
-    RESET = "\x1b[0;39m"
+def print_stats(correct: int, review: int, total: int):
+    """Prints the current statistics"""
     print(f"Stats: ✅ {GREEN}{correct}{RESET}, 📖 {YELLOW}{review}{RESET}, Total Cards: {total}")
+
+def find_most_reviewed_card(flashcard_stats: dict[str, int]) -> str:
+    """Returns the most reviewed card in the set"""
+    most = 0
+    most_card = ""
+    for card, count in flashcard_stats.items():
+        if count > most:
+            most = count
+            most_card = card
+    
+    return most_card
+
+def print_end_stats(verbose: bool, correct: int, review_count: int, flashcard_stats: dict[str,int]):
+    """Prints the statistics at the end of the session"""
+    print(f"Study Session Results:\n\t✅ Correct: {correct}\n\t📖 Needed to Review: {review_count}")
+    if verbose:
+        print("Individual Card Statistics")
+        for card, review_count in flashcard_stats.items():
+            colour = ""
+            if review_count == 0:
+                colour = GREEN
+            elif review_count <= 3:
+                colour = YELLOW
+            else:
+                colour = RED
+            print(f"\t({card}) Times to Review: {colour}{review_count}{RESET}")
+    else:
+        print(f"Most Reviewed Card: '{find_most_reviewed_card(flashcard_stats)}'")
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -68,11 +100,13 @@ def main():
     )
 
     parser.add_argument("filename")
-    parser.add_argument("-s", "--shuffle", action="store_true")
+    parser.add_argument("-s", "--shuffle", help="Whether or not flashcards are shuffled", action="store_true")
+    parser.add_argument("-v", "--verbose", help="Shows more detailed statistics at the end", action="store_true")
 
     args = parser.parse_args()
 
-    flashcards = {}
+    initial_flashcards = {}
+    flashcard_stats = {}
     correct = 0
     cards_to_review = set()
 
@@ -85,12 +119,16 @@ def main():
                 back = row[1]
                 if len(row) != 2:
                     back = ",".join(row[1:])
-                flashcards[row[0]] = back
+                initial_flashcards[row[0]] = back
+                flashcard_stats[row[0]] = 0
 
     except FileNotFoundError:
         print(f"ERROR: Could not read {args.filename}")
 
+    flashcards = initial_flashcards.copy()
     total_cards = len(flashcards)
+    
+
     idx = 0
     running = True
     flipped = False
@@ -119,7 +157,7 @@ def main():
             match action:
                 case "q":
                     valid_action = True
-                    break
+                    running = False
                 case "c":
                     del flashcards[front]
                     flipped = False
@@ -130,6 +168,7 @@ def main():
                     flipped = False
                     valid_action = True
                     cards_to_review.add(front)
+                    flashcard_stats[front] += 1
                     break
                 case "f":
                     flipped = not flipped
@@ -138,7 +177,7 @@ def main():
                     print("Unknown action")
                     valid_action = False
         
-    print(f"Study Session Results:\n\t✅ Correct: {correct}\n\t📖 Needed to Review: {len(cards_to_review)}")
+    print_end_stats(args.verbose, correct, len(cards_to_review), flashcard_stats)
 
 
 if __name__ == "__main__":
