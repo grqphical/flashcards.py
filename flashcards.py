@@ -10,7 +10,8 @@ import random
 
 
 def clear_terminal():
-    print(chr(27) + "[2J")
+    print("\x1b[2J")
+    print("\x1b[H")
 
 
 def draw_ascii_box_with_text(width, height, text):
@@ -72,6 +73,8 @@ def main():
     args = parser.parse_args()
 
     flashcards = {}
+    correct = 0
+    cards_to_review = set()
 
     try:
         with open(args.filename, "r", newline="") as f:
@@ -89,11 +92,13 @@ def main():
 
     total_cards = len(flashcards)
     idx = 0
+    running = True
     flipped = False
-    while True:
+    while running:
         clear_terminal()
         if len(flashcards) == 0:
-            return
+            running = False
+            break
 
         if args.shuffle:
             idx = random.randint(0, len(flashcards) - 1)
@@ -104,8 +109,8 @@ def main():
             output_text = flashcards[front]
 
         draw_ascii_box_with_text(32, 9, output_text)
-        print_stats(5, 5, total_cards)
-        print("\nActions: 'f' to flip, 'q' to quit, 'n' to move onto next card")
+        print_stats(correct, len(cards_to_review), total_cards)
+        print("\nActions: 'f' to flip, 'q' to quit, 'c' to mark card as correct, 'r' to mark card for further review")
 
         valid_action = False
         while not valid_action:
@@ -114,11 +119,17 @@ def main():
             match action:
                 case "q":
                     valid_action = True
-                    return
-                case "n":
+                    break
+                case "c":
                     del flashcards[front]
                     flipped = False
                     valid_action = True
+                    correct += 1
+                    break
+                case "r":
+                    flipped = False
+                    valid_action = True
+                    cards_to_review.add(front)
                     break
                 case "f":
                     flipped = not flipped
@@ -126,6 +137,8 @@ def main():
                 case _:
                     print("Unknown action")
                     valid_action = False
+        
+    print(f"Study Session Results:\n\t✅ Correct: {correct}\n\t📖 Needed to Review: {len(cards_to_review)}")
 
 
 if __name__ == "__main__":
