@@ -54,6 +54,11 @@ def draw_ascii_box_with_text(width, height, text):
     # Bottom border
     print("+" + "-" * (width - 2) + "+")
 
+def print_stats(correct, review, total):
+    GREEN = "\x1b[1;32m"
+    YELLOW = "\x1b[1;33m"
+    RESET = "\x1b[0;39m"
+    print(f"Stats: ✅ {GREEN}{correct}{RESET}, 📖 {YELLOW}{review}{RESET}, Total Cards: {total}")
 
 def main():
     parser = argparse.ArgumentParser(
@@ -82,6 +87,7 @@ def main():
     except FileNotFoundError:
         print(f"ERROR: Could not read {args.filename}")
 
+    total_cards = len(flashcards)
     idx = 0
     flipped = False
     while True:
@@ -98,6 +104,7 @@ def main():
             output_text = flashcards[front]
 
         draw_ascii_box_with_text(32, 9, output_text)
+        print_stats(5, 5, total_cards)
         print("\nActions: 'f' to flip, 'q' to quit, 'n' to move onto next card")
 
         valid_action = False
