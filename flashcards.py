@@ -106,13 +106,13 @@ def print_stats(correct: int, review: int, total: int):
 def find_most_reviewed_card(flashcard_stats: dict[str, int]) -> str:
     """Returns the most reviewed card in the set"""
     most = 0
-    most_card = ""
+    most_card = flashcard_stats.keys
     for card, count in flashcard_stats.items():
         if count > most:
             most = count
             most_card = card
     
-    return most_card
+    return most_card if most != 0 else "None"
 
 def print_end_stats(verbose: bool, correct: int, review_count: int, flashcard_stats: dict[str,int]):
     """Prints the statistics at the end of the session"""
@@ -175,7 +175,7 @@ def main():
             running = False
             break
 
-        if args.shuffle:
+        if args.shuffle and idx == 0:
             idx = random.randint(0, len(flashcards) - 1)
 
         front = list(flashcards.keys())[idx]
@@ -200,12 +200,14 @@ def main():
                     flipped = False
                     valid_action = True
                     correct += 1
+                    idx = random.randint(0, len(flashcards) - 1)
                     break
                 case "r":
                     flipped = False
                     valid_action = True
                     cards_to_review.add(front)
                     flashcard_stats[front] += 1
+                    idx = random.randint(0, len(flashcards) - 1)
                     break
                 case "f":
                     flipped = not flipped
