@@ -103,6 +103,13 @@ def draw_ascii_box_with_text(width: int, height: int, text: str, flipped: bool):
     if flipped:
         print(RESET, end='')
 
+def print_titlebar(filename: str):
+    cols = os.get_terminal_size().columns
+    title = f"flashcards.py - {filename}"
+    padding = (cols - len(title)) // 2
+    print(REVERSE + " " * padding + title + " " * (cols - len(title) - padding) + RESET)
+    print()
+
 def print_stats(correct: int, review: int, total: int):
     """Prints the current statistics"""
     print(f"Stats: ✅ {GREEN}{correct}{RESET}, 📖 {YELLOW}{review}{RESET}, Total Cards: {total}")
@@ -181,6 +188,7 @@ def main():
     flipped = False
     while running:
         clear_terminal()
+        print_titlebar(args.filename)
         if len(flashcards) == 0:
             running = False
             break
