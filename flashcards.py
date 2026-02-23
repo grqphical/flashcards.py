@@ -123,7 +123,7 @@ def find_most_reviewed_card(flashcard_review_counts: dict[str, int]) -> str:
             most = count
             most_card = card
     
-    return most_card if most != 0 else "None"
+    return most_card if most != 0 else None
 
 def print_end_stats(verbose: bool, correct: int, review_count: int, flashcard_review_counts: dict[str,int]):
     """Prints the statistics at the end of the session"""
@@ -140,7 +140,9 @@ def print_end_stats(verbose: bool, correct: int, review_count: int, flashcard_re
                 colour = RED
             print(f"\t({card}) Times to Review: {colour}{review_count}{RESET}")
     else:
-        print(f"Most Reviewed Card: '{find_most_reviewed_card(flashcard_review_counts)}'")
+        most_card = find_most_reviewed_card(flashcard_review_counts)
+        if most_card:
+            print(f"Most Reviewed Card: '{most_card}'")
 
 def parse_flashcards(output: list[tuple[str, str]], stats_output: dict[str, int], f):
     """Parses the CSV file containing the flash cards"""
