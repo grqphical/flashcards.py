@@ -3,6 +3,9 @@ A simple script that reads a CSV file of flashcards and quizes you on them. Incl
 
 I built this in a day to help me study for my univeristy midterms. Feel free to make a PR if you want to add a new feature, I'm always open to contributions.
 
+## Demo
+<img src="/output.gif" width="640" height="360">
+
 ## Installation
 Make sure Python is installed (this script has no dependencies) and then run:
 
