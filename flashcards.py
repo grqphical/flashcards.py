@@ -82,7 +82,6 @@ def draw_ascii_box_with_text(width: int, height: int, text: str):
     # Top border
     print("+" + "-" * (width - 2) + "+")
 
-    vertical_center = height // 2
     text_start = (height - len(lines)) // 2
 
     for i in range(1, height - 1):
