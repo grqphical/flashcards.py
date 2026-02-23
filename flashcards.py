@@ -135,6 +135,7 @@ def main():
     parser = argparse.ArgumentParser(
         prog="flashcards.py",
         description="A simple flashcard tool that reads flashcards from a CSV file",
+        epilog="Made by Nathan Jacobson <https://github.com/grqphical/flashcards.py>"
     )
 
     parser.add_argument("filename")

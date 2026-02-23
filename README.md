@@ -1,6 +1,8 @@
 # flashcards.py
 A simple script that reads a CSV file of flashcards and quizes you on them. Includes features such as saving cards for review and viewing your stats at the end of the study session
 
+I built this in a day to help me study for my univeristy midterms. Feel free to make a PR if you want to add a new feature, I'm always open to contributions.
+
 ## Installation
 Make sure Python is installed (this script has no dependencies) and then run:
 
