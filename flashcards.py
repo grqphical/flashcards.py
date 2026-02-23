@@ -46,6 +46,7 @@ For more information, please refer to <https://unlicense.org>
 import argparse
 import csv
 import random
+import os
 
 GREEN = "\x1b[1;32m"
 YELLOW = "\x1b[1;33m"
@@ -53,9 +54,8 @@ RED = "\x1b[1;31m"
 RESET = "\x1b[0;39m"
 
 def clear_terminal():
-    """Clears the terminal and moves the cursor back to the home position"""
-    print("\x1b[2J")
-    print("\x1b[H")
+    """Clears the terminal"""
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def draw_ascii_box_with_text(width: int, height: int, text: str):
