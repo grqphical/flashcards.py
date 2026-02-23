@@ -76,6 +76,10 @@ def draw_ascii_box_with_text(width: int, height: int, text: str, flipped: bool):
             current_line = word + " "
     if current_line:
         lines.append(current_line.strip())
+    
+    for line in lines:
+        if len(line) > width:
+            width = len(line)+2
 
     # Adjust height to fit wrapped text
     height = max(height, len(lines) + 2)
