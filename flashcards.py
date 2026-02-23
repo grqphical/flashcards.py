@@ -107,23 +107,23 @@ def print_stats(correct: int, review: int, total: int):
     """Prints the current statistics"""
     print(f"Stats: ✅ {GREEN}{correct}{RESET}, 📖 {YELLOW}{review}{RESET}, Total Cards: {total}")
 
-def find_most_reviewed_card(flashcard_stats: dict[str, int]) -> str:
+def find_most_reviewed_card(flashcard_review_counts: dict[str, int]) -> str:
     """Returns the most reviewed card in the set"""
     most = 0
-    most_card = flashcard_stats.keys
-    for card, count in flashcard_stats.items():
+    most_card = flashcard_review_counts.keys
+    for card, count in flashcard_review_counts.items():
         if count > most:
             most = count
             most_card = card
     
     return most_card if most != 0 else "None"
 
-def print_end_stats(verbose: bool, correct: int, review_count: int, flashcard_stats: dict[str,int]):
+def print_end_stats(verbose: bool, correct: int, review_count: int, flashcard_review_counts: dict[str,int]):
     """Prints the statistics at the end of the session"""
     print(f"Study Session Results:\n\t✅ Correct: {correct}\n\t📖 Needed to Review: {review_count}")
     if verbose:
         print("Individual Card Statistics")
-        for card, review_count in flashcard_stats.items():
+        for card, review_count in flashcard_review_counts.items():
             colour = ""
             if review_count == 0:
                 colour = GREEN
@@ -133,16 +133,17 @@ def print_end_stats(verbose: bool, correct: int, review_count: int, flashcard_st
                 colour = RED
             print(f"\t({card}) Times to Review: {colour}{review_count}{RESET}")
     else:
-        print(f"Most Reviewed Card: '{find_most_reviewed_card(flashcard_stats)}'")
+        print(f"Most Reviewed Card: '{find_most_reviewed_card(flashcard_review_counts)}'")
 
-def parse_flashcards(output: dict[str, str], stats_output: dict[str, int], f):
+def parse_flashcards(output: list[tuple[str, str]], stats_output: dict[str, int], f):
     """Parses the CSV file containing the flash cards"""
     csvreader = csv.reader(f)
     for row in csvreader:
+        front = row[0]
         back = row[1]
         if len(row) != 2:
             back = ",".join(row[1:])
-        output[row[0]] = back
+        output.append((front, back))
         stats_output[row[0]] = 0
 
 def main():
@@ -158,23 +159,24 @@ def main():
 
     args = parser.parse_args()
 
-    initial_flashcards = {}
-    flashcard_stats = {}
+    initial_flashcards: list[tuple[str, str]] = []
+    flashcard_review_counts = {}
     correct = 0
     cards_to_review = set()
 
     try:
         with open(args.filename, "r", newline="") as f:
-            parse_flashcards(initial_flashcards, flashcard_stats, f)
+            parse_flashcards(initial_flashcards, flashcard_review_counts, f)
 
     except FileNotFoundError:
         print(f"ERROR: Could not read {args.filename}")
         return
 
     flashcards = initial_flashcards.copy()
+    if args.shuffle:
+        random.shuffle(flashcards)
     total_cards = len(flashcards)
 
-    idx = 0
     running = True
     flipped = False
     while running:
@@ -182,14 +184,13 @@ def main():
         if len(flashcards) == 0:
             running = False
             break
-
-        if args.shuffle and idx == 0:
-            idx = random.randint(0, len(flashcards) - 1)
-
-        front = list(flashcards.keys())[idx]
+        
+        flashcard = flashcards[0]
+        front = flashcard[0]
+        back = flashcard[1]
         output_text = front
         if flipped:
-            output_text = flashcards[front]
+            output_text = back
 
         draw_ascii_box_with_text(32, 9, output_text, flipped)
         print_stats(correct, len(cards_to_review), total_cards)
@@ -204,20 +205,19 @@ def main():
                     valid_action = True
                     running = False
                 case "c":
-                    del flashcards[front]
+                    flashcards.pop(0)
                     flipped = False
                     valid_action = True
                     correct += 1
-                    if len(flashcards) != 0:
-                        idx = random.randint(0, len(flashcards) - 1)
                     break
                 case "r":
                     flipped = False
                     valid_action = True
                     cards_to_review.add(front)
-                    flashcard_stats[front] += 1
-                    if len(flashcards) != 0:
-                        idx = random.randint(0, len(flashcards) - 1)
+                    flashcard_review_counts[front] += 1
+                    # move the flashcard to the back of the queue
+                    card = flashcards.pop(0)
+                    flashcards.append(card)
                     break
                 case "f":
                     flipped = not flipped
@@ -226,7 +226,7 @@ def main():
                     print("Unknown action")
                     valid_action = False
         
-    print_end_stats(args.verbose, correct, len(cards_to_review), flashcard_stats)
+    print_end_stats(args.verbose, correct, len(cards_to_review), flashcard_review_counts)
 
 
 if __name__ == "__main__":
