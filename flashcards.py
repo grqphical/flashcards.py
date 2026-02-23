@@ -130,6 +130,15 @@ def print_end_stats(verbose: bool, correct: int, review_count: int, flashcard_st
     else:
         print(f"Most Reviewed Card: '{find_most_reviewed_card(flashcard_stats)}'")
 
+def parse_flashcards(output: dict[str, str], stats_output: dict[str, int], f):
+    """Parses the CSV file containing the flash cards"""
+    csvreader = csv.reader(f)
+    for row in csvreader:
+        back = row[1]
+        if len(row) != 2:
+            back = ",".join(row[1:])
+        output[row[0]] = back
+        stats_output[row[0]] = 0
 
 def main():
     parser = argparse.ArgumentParser(
@@ -151,20 +160,14 @@ def main():
 
     try:
         with open(args.filename, "r", newline="") as f:
-            csvreader = csv.reader(f)
-            for row in csvreader:
-                back = row[1]
-                if len(row) != 2:
-                    back = ",".join(row[1:])
-                initial_flashcards[row[0]] = back
-                flashcard_stats[row[0]] = 0
+            parse_flashcards(initial_flashcards, flashcard_stats, f)
 
     except FileNotFoundError:
         print(f"ERROR: Could not read {args.filename}")
+        return
 
     flashcards = initial_flashcards.copy()
     total_cards = len(flashcards)
-    
 
     idx = 0
     running = True
