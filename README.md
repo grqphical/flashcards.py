@@ -7,7 +7,7 @@ I built this in a day to help me study for my univeristy midterms. Feel free to 
 <img src="/output.gif" width="640" height="360">
 
 ## Installation
-Make sure Python is installed (this script has no dependencies) and then run:
+Make sure Python is installed (this script has no Python dependencies) and then run:
 
 ```bash
 python flashcards.py [flashcard_csv_file_here]
