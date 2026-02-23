@@ -51,14 +51,15 @@ import os
 GREEN = "\x1b[1;32m"
 YELLOW = "\x1b[1;33m"
 RED = "\x1b[1;31m"
-RESET = "\x1b[0;39m"
+REVERSE = "\x1b[7m"
+RESET = "\x1b[0m"
 
 def clear_terminal():
     """Clears the terminal"""
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def draw_ascii_box_with_text(width: int, height: int, text: str):
+def draw_ascii_box_with_text(width: int, height: int, text: str, flipped: bool):
     """Draws a box with text around it. Used to draw nicer looking flashcards"""
     # Wrap text to fit within box width
     max_text_width = width - 4
@@ -79,6 +80,8 @@ def draw_ascii_box_with_text(width: int, height: int, text: str):
     # Adjust height to fit wrapped text
     height = max(height, len(lines) + 2)
 
+    if flipped:
+        print(REVERSE, end='')
     # Top border
     print("+" + "-" * (width - 2) + "+")
 
@@ -97,6 +100,8 @@ def draw_ascii_box_with_text(width: int, height: int, text: str):
 
     # Bottom border
     print("+" + "-" * (width - 2) + "+")
+    if flipped:
+        print(RESET, end='')
 
 def print_stats(correct: int, review: int, total: int):
     """Prints the current statistics"""
@@ -186,7 +191,7 @@ def main():
         if flipped:
             output_text = flashcards[front]
 
-        draw_ascii_box_with_text(32, 9, output_text)
+        draw_ascii_box_with_text(32, 9, output_text, flipped)
         print_stats(correct, len(cards_to_review), total_cards)
         print("\nActions: 'f' to flip, 'q' to quit, 'c' to mark card as correct, 'r' to mark card for further review")
 
